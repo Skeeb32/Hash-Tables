@@ -16,6 +16,9 @@ class HashTable:
 
     Implement this.
     """
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.storage = [None] * self.capacity
 
     def fnv1(self, key):
         """
@@ -23,6 +26,14 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        # The FNV_offset_basis is 
+        # the 64-bit FNV offset basis value: 
+        # 14695981039346656037 (in hex, 0xcbf29ce484222325)
+        h = 14695981039346656037
+        for b in str(key).encode():
+            h *= 1099511628211
+            h ^= b
+        return h
 
     def djb2(self, key):
         """
@@ -36,8 +47,9 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        #return self.djb2(key) % self.capacity
+        
 
     def put(self, key, value):
         """
@@ -47,6 +59,8 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        self.storage[index] = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -56,6 +70,8 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        self.storage[index] = None
 
     def get(self, key):
         """
@@ -65,6 +81,11 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if self.storage[index] == None:
+            return None
+        else:
+            return self.storage[index].value
 
     def resize(self):
         """

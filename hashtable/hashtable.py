@@ -149,6 +149,19 @@ class HashTable:
 
         Implement this.
         """
+        # Step 1: Make a new, bigger table/array
+        # Step 2: Go through all the old elements, and hash into the new list
+        # Rule of thumb:
+        # If you resize bigger, double size if smaller halve the size.
+        new_capacity = self.storage
+        if self.storage > 0.7:
+            self.capacity = self.capacity * 2
+        new_array = [None] * self.capacity
+        self.storage = new_array
+        for element in new_capacity:
+            if element is not None:
+                self.put(element.key, element.value)
+                element = element.next
 
 if __name__ == "__main__":
     ht = HashTable(2)

@@ -7,6 +7,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+        
 
 
 class HashTable:
@@ -21,6 +22,7 @@ class HashTable:
         # self.offset = 14695981039346656037
         self.capacity = capacity
         self.storage = [None] * self.capacity
+        self.size = 0
 
     def fnv1(self, key):
         """
@@ -72,6 +74,7 @@ class HashTable:
         Implement this.
         """
         # Add new entry
+        self.size = self.size + 1
         newEntry = HashTableEntry(key, value)
         # has the key and find its index
         newIndex = self.hash_index(key)
@@ -142,7 +145,7 @@ class HashTable:
         return None
          
 
-    def resize(self, new_capacity):
+    def resize(self, new_capacity = None):
         """
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
@@ -153,15 +156,22 @@ class HashTable:
         # Step 2: Go through all the old elements, and hash into the new list
         # Rule of thumb:
         # If you resize bigger, double size if smaller halve the size.
-        new_capacity = self.storage
-        if self.storage > 0.7:
-            self.capacity = self.capacity * 2
-        new_array = [None] * self.capacity
-        self.storage = new_array
-        for element in new_capacity:
-            if element is not None:
-                self.put(element.key, element.value)
-                element = element.next
+        old_stoarge = self.storage
+        # if the load is greater than 0.7
+        load_factor = 0.7
+        load = self.size / self.capacity
+        if load > load_factor:
+            self.capacity = new_capacity or self.capacity * 2
+            new_array = [None] * self.capacity
+            self.storage = new_array
+        # Iterate through elements in array
+            for bucekt in old_stoarge:
+                node = bucekt
+                while node is not None:
+                    self.put(node.key, node.value)
+                    node = node.next
+
+            
 
 if __name__ == "__main__":
     ht = HashTable(2)

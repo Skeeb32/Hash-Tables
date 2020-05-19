@@ -7,6 +7,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+        
 
 
 class HashTable:
@@ -16,6 +17,12 @@ class HashTable:
 
     Implement this.
     """
+    def __init__(self, capacity):
+        # self.prime = 1099511628211
+        # self.offset = 14695981039346656037
+        self.capacity = capacity
+        self.storage = [None] * self.capacity
+        self.size = 0
 
     def fnv1(self, key):
         """
@@ -23,6 +30,24 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        # hash_bytes = key.encode()
+        # total = self.offset
+        # for b in hash_bytes:
+        #     total *= self.prime
+        #     total ^= b
+        #     total &= 0xffffffffffffffff
+        # return total
+        # The FNV_offset_basis is 
+        # the 64-bit FNV offset basis value: 
+        # 14695981039346656037 (in hex, 0xcbf29ce484222325)
+        # Exclusive OR Operator (^=)
+        h = 14695981039346656037
+        for b in str(key).encode():
+            h *= 1099511628211
+            h ^= b
+            h &= 0xffffffffffffffff
+        return h
+
 
     def djb2(self, key):
         """
@@ -36,8 +61,9 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        #return self.djb2(key) % self.capacity
+        
 
     def put(self, key, value):
         """
@@ -47,6 +73,33 @@ class HashTable:
 
         Implement this.
         """
+        # Add new entry
+        self.size = self.size + 1
+        newEntry = HashTableEntry(key, value)
+        # has the key and find its index
+        newIndex = self.hash_index(key)
+        # check if newindex has empty storage
+        if self.storage[newIndex] is None:
+            self.storage[newIndex] = newEntry
+            return
+            # get the indext storage
+        node = self.storage[newIndex]
+         # store the value in the newIndex
+        prev = None
+        while node is not None: #Iterate through Node till you reach None
+            # print(node.key, node.value, value)
+            if node.key == key:
+                # print(value)
+                node.value = newEntry.value
+                # print("Hello", node.key, node.value, value)
+                return
+                # go to next node
+            prev = node
+            node = node.next
+
+        prev.next = newEntry
+        # index = self.hash_index(key)
+        # self.storage[index] = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -56,6 +109,24 @@ class HashTable:
 
         Implement this.
         """
+        val = self.get(key)
+        if val == None:
+            print("Not found")
+        if val != None:
+            hash_index = self.hash_index(key)
+            node = self.storage[hash_index]
+            prev = None
+            while node is not None:
+                if node.key == key:
+                    if prev != None:
+                        prev.next = None
+                    else:
+                        self.storage[hash_index] = node.next
+                prev = node
+                node = node.next
+
+        # index = self.hash_index(key)
+        # self.storage[index] = None
 
     def get(self, key):
         """
@@ -65,14 +136,42 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        node = self.storage[index]
+        while node is not None:
+            if node.key == key:
+                return node.value
+            node = node.next
+        return None
+         
 
-    def resize(self):
+    def resize(self, new_capacity = None):
         """
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
 
         Implement this.
         """
+        # Step 1: Make a new, bigger table/array
+        # Step 2: Go through all the old elements, and hash into the new list
+        # Rule of thumb:
+        # If you resize bigger, double size if smaller halve the size.
+        old_stoarge = self.storage
+        # if the load is greater than 0.7
+        load_factor = 0.7
+        load = self.size / self.capacity
+        if load > load_factor:
+            self.capacity = new_capacity or self.capacity * 2
+            new_array = [None] * self.capacity
+            self.storage = new_array
+        # Iterate through elements in array
+            for bucekt in old_stoarge:
+                node = bucekt
+                while node is not None:
+                    self.put(node.key, node.value)
+                    node = node.next
+
+            
 
 if __name__ == "__main__":
     ht = HashTable(2)
